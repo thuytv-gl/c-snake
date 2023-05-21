@@ -1,0 +1,20 @@
+#!/bin/sh
+set +x
+build_dir="../build"
+p_name="handmade"
+exec_file=$build_dir/$p_name
+
+# make build dir if not exists
+[ ! -d $build_dir ] && mkdir $build_dir
+
+pushd $build_dir > /dev/null
+# make a backup
+[ -e "./p_name" ] && mv "./$p_name" "./$p_name.old"
+# build the program
+gcc -g -Wall -o $p_name ../code/handmade.c `sdl2-config --cflags --libs`
+popd > /dev/null
+
+if [ "$1" = "--run" ] && [ -e "$exec_file" ] ; then
+    exec $exec_file
+fi
+
