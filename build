@@ -1,17 +1,16 @@
 #!/bin/sh
 set +x
-build_dir="./dist"
-p_name="handmade"
+build_dir="./"
+main="./handmade.c"
+p_name="hmd"
 exec_file=$build_dir/$p_name
 
 # make build dir if not exists
 [ ! -d $build_dir ] && mkdir $build_dir
 
 pushd $build_dir > /dev/null
-# make a backup
-[ -e "./p_name" ] && mv "./$p_name" "./$p_name.old"
-# build the program
-gcc -g -Wall -o $p_name ../src/handmade.c `sdl2-config --cflags --libs`
+[ -e "./$p_name" ] && mv "./$p_name" "./$p_name.old"
+gcc -g -Wall -o $p_name $main `sdl2-config --cflags --libs`
 popd > /dev/null
 
 if [ "$1" = "--run" ] && [ -e "$exec_file" ] ; then
