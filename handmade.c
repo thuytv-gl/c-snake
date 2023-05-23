@@ -28,6 +28,9 @@ int main(int argc, char** argv) {
                 C_WINDOW_FLAGS));
     SDL_Renderer* renderer = check_ptr(SDL_CreateRenderer(window, -1,
                 SDL_RENDERER_ACCELERATED));
+    SDL_Surface* surface = check_ptr(SDL_GetWindowSurface(window));
+    SDL_Texture* texture = check_ptr(SDL_CreateTextureFromSurface(renderer,
+                surface));
     SDL_Event evt;
     short red = 50;
     short blue = 100;

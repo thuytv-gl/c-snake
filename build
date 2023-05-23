@@ -9,7 +9,7 @@ exec_file=$build_dir/$p_name
 [ ! -d $build_dir ] && mkdir $build_dir
 
 pushd $build_dir > /dev/null
-[ -e "./$p_name" ] && mv "./$p_name" "./$p_name.old"
+[ -e "./$p_name" ] && mv "./$p_name" "./$p_name~"
 gcc -g -Wall -o $p_name $main `sdl2-config --cflags --libs`
 popd > /dev/null
 
