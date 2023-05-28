@@ -10,7 +10,7 @@ exec_file=$build_dir/$p_name
 
 pushd $build_dir > /dev/null
 [ -e "./$p_name" ] && mv "./$p_name" "./$p_name~"
-gcc -g -Wall -o $p_name $main `sdl2-config --cflags --libs`
+g++ -g -Wall -o $p_name $main -I/usr/include/SDL2 -L/usr/lib -lSDL2 -lSDL2_image
 popd > /dev/null
 
 if [ "$1" = "--run" ] && [ -e "$exec_file" ] ; then
