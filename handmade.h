@@ -1,4 +1,6 @@
 #include<stdio.h>
+#include <stdlib.h>
+#include <time.h>
 #include<SDL2/SDL.h>
 #include<SDL2/SDL_image.h>
 
@@ -15,6 +17,8 @@
 
 #define local_persist static
 #define global_variable static
+#define randnum(min, max) \
+    ((rand() % (int)(((max) + 1) - (min))) + (min))
 
 enum Direction {
     DirectionEast,
@@ -26,4 +30,5 @@ enum Direction {
 typedef struct {
     Direction d;
     SDL_Point body[BOARD_SIZE * BOARD_SIZE];
+    int len;
 } Snake;

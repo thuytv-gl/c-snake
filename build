@@ -8,6 +8,15 @@ exec_file=$build_dir/$p_name
 # make build dir if not exists
 [ ! -d $build_dir ] && mkdir $build_dir
 
+
+if [ "$1" = "--release" ] && [ -e "$exec_file" ] ; then
+    pushd $build_dir > /dev/null
+    [ -e "./$p_name" ] && mv "./$p_name" "./$p_name~"
+    g++ -O3 -DNGEBUG -Wall -O2 -o $p_name $main -I/usr/include/SDL2 -L/usr/lib -lSDL2 -lSDL2_image
+    popd > /dev/null
+    exit
+fi
+
 pushd $build_dir > /dev/null
 [ -e "./$p_name" ] && mv "./$p_name" "./$p_name~"
 g++ -g -Wall -o $p_name $main -I/usr/include/SDL2 -L/usr/lib -lSDL2 -lSDL2_image

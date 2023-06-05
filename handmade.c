@@ -3,12 +3,9 @@
 global_variable char running = 1;
 global_variable SDL_Texture *arts_texture = NULL;
 global_variable Snake snake = {DirectionEast};
-const SDL_Rect wall_tile = {
-    ICON_SIZE*2,
-    ICON_SIZE*2,
-    ICON_SIZE,
-    ICON_SIZE
-};
+global_variable SDL_Point fruit = {0, 0};
+const SDL_Rect wall_tile = {ICON_SIZE*2, ICON_SIZE*2, ICON_SIZE, ICON_SIZE};
+const SDL_Rect fruit_tile = {ICON_SIZE*2, ICON_SIZE*3, ICON_SIZE, ICON_SIZE};
 const SDL_Rect snake_tile = {ICON_SIZE, ICON_SIZE*2, ICON_SIZE, ICON_SIZE};
 const SDL_Rect head_tile = {ICON_SIZE, ICON_SIZE*3, ICON_SIZE, ICON_SIZE};
 const int snake_len = BOARD_SIZE * BOARD_SIZE;
@@ -28,56 +25,8 @@ template <typename T> T* scp(T *ptr) {
     return ptr;
 }
 
-void prepare_wall(SDL_Renderer *renderer) {
-    SDL_Rect target_tile = {0, 0, 32, 32};
-    for (int i = 0; i < BOARD_SIZE; ++i) {
-        target_tile.x = i * 32;
-        for (int j = 0; j < BOARD_SIZE; ++j) {
-            target_tile.y = j * 32;
-            if (i == 0 || j == 0 || i == 19 || j == 19) {
-                SDL_RenderCopy(renderer, arts_texture, &wall_tile, &target_tile);
-            }
-        }
-    }
-}
-
-void prepare_snake(SDL_Renderer *renderer) {
-    SDL_Rect rect;
-    rect.w = ICON_SIZE;
-    rect.h = ICON_SIZE;
-    for (int i = 0; i < snake_len; ++i) {
-        if (snake.body[i].x == 0)
-            break;
-
-        rect.x = snake.body[i].x * ICON_SIZE;
-        rect.y = snake.body[i].y * ICON_SIZE;
-        if (i == 0) 
-            SDL_RenderCopy(renderer, arts_texture, &head_tile, &rect);
-        else
-            SDL_RenderCopy(renderer, arts_texture, &snake_tile, &rect);
-    }
-}
-
-void prepare_scene(SDL_Renderer *renderer) {
-    scc(SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255));
-    scc(SDL_RenderFillRect(renderer, NULL));
-    prepare_wall(renderer);
-    prepare_snake(renderer);
-}
-
-void do_render(SDL_Renderer *renderer) {
-    SDL_RenderPresent(renderer);
-}
-
 void snake_forward() {
-    int tail = -1;
-    for (int i = 0; i < snake_len; i++) {
-        if (snake.body[i].x == 0) {
-            tail = i-1;
-            break;
-        }
-    }
-
+    int tail = snake.len-1;
     SDL_Point head = snake.body[0];
     for (;tail > 0; --tail) {
         snake.body[tail].x = snake.body[tail-1].x;
@@ -103,6 +52,76 @@ void snake_forward() {
         } break;
         default: break;
     }
+}
+
+void spawn_fruit() {
+    fruit.x = randnum(1, BOARD_SIZE-1);
+    fruit.y = randnum(1, BOARD_SIZE-1);
+}
+
+void snake_eat_fruit() {
+    SDL_Point *head = &(snake.body[0]);
+    if (head->x == fruit.x && head->y == fruit.y) {
+        SDL_Point tail = snake.body[snake.len-1];
+        snake.body[snake.len].x = tail.x;
+        snake.body[snake.len].y = tail.y;
+
+        snake.len++;
+        spawn_fruit();
+    }
+}
+
+void prepare_wall(SDL_Renderer *renderer) {
+    SDL_Rect target_tile = {0, 0, 32, 32};
+    for (int i = 0; i <= BOARD_SIZE; ++i) {
+        target_tile.x = i * ICON_SIZE;
+        for (int j = 0; j <= BOARD_SIZE; ++j) {
+            target_tile.y = j * ICON_SIZE;
+            if (i == 0 || j == 0 || i == BOARD_SIZE || j == BOARD_SIZE) {
+                SDL_RenderCopy(renderer, arts_texture, &wall_tile, &target_tile);
+            }
+        }
+    }
+}
+
+void prepare_fruit(SDL_Renderer *renderer) {
+    SDL_Rect target_tile = {
+        fruit.x*ICON_SIZE,
+        fruit.y*ICON_SIZE,
+        ICON_SIZE,
+        ICON_SIZE
+    };
+    SDL_RenderCopy(renderer, arts_texture, &fruit_tile, &target_tile);
+}
+
+void prepare_snake(SDL_Renderer *renderer) {
+    SDL_Rect rect;
+    rect.w = ICON_SIZE;
+    rect.h = ICON_SIZE;
+    int i = snake.len-1;
+    for (;i >= 0; i--) {
+        if (snake.body[i].x == 0)
+            break;
+
+        rect.x = snake.body[i].x * ICON_SIZE;
+        rect.y = snake.body[i].y * ICON_SIZE;
+        if (i == 0) 
+            SDL_RenderCopy(renderer, arts_texture, &head_tile, &rect);
+        else
+            SDL_RenderCopy(renderer, arts_texture, &snake_tile, &rect);
+    }
+}
+
+void prepare_scene(SDL_Renderer *renderer) {
+    scc(SDL_SetRenderDrawColor(renderer, 50, 50, 50, 255));
+    scc(SDL_RenderFillRect(renderer, NULL));
+    prepare_wall(renderer);
+    prepare_fruit(renderer);
+    prepare_snake(renderer);
+}
+
+void do_render(SDL_Renderer *renderer) {
+    SDL_RenderPresent(renderer);
 }
 
 void window_event_handler(SDL_Window *window, SDL_Renderer *renderer,
@@ -142,10 +161,12 @@ void window_event_handler(SDL_Window *window, SDL_Renderer *renderer,
                 {
                     snake.d = DirectionSouth;
                 } break;
-                // case SDLK_SPACE:
-                // {
-                //     snake_forward();
-                // } break;
+                /**
+                case SDLK_SPACE:
+                {
+                    snake_forward();
+                } break;
+                */
                 default: break;
             }
         } break;
@@ -158,12 +179,14 @@ void init_sdl() {
 }
 
 int main(int argc, char** argv) {
+    srand(time(NULL));
     init_sdl();
+    spawn_fruit();
     for (int i = 0; i < 5; ++i) {
         snake.body[i].x = 5 - i;
         snake.body[i].y = 2;
+        snake.len++;
     }
-
     SDL_Window* window = scp(SDL_CreateWindow(WINDOW_TITLE,
                 SDL_WINDOWPOS_CENTERED,
                 SDL_WINDOWPOS_CENTERED,
@@ -195,6 +218,7 @@ int main(int argc, char** argv) {
         if (SDL_TICKS_PASSED(SDL_GetTicks(), timeout)) {
             timeout = SDL_GetTicks() + speed * 100;
             snake_forward();
+            snake_eat_fruit();
         }
     }
 
