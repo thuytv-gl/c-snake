@@ -2,15 +2,14 @@
 #include <stdlib.h>
 #include <time.h>
 #include<SDL2/SDL.h>
-#include<SDL2/SDL_image.h>
 
 // CONFIGS
 #define WINDOW_TITLE     "Handmade"
 #define WINDOW_WIDTH     1080
 #define WINDOW_HEIGHT    720
 #define FRAME_RATE       1000/60
-#define ICON_SIZE        32
-#define BOARD_SIZE       20
+#define TILE_SIZE        20
+#define BOARD_SIZE       40
 
 // EVENTS
 #define HMD_EVENT_QUIT 0

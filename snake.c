@@ -1,13 +1,8 @@
 #include "snake.h"
 
 global_variable char running = 1;
-global_variable SDL_Texture *arts_texture = NULL;
 global_variable Snake snake = {DirectionEast};
 global_variable SDL_Point fruit = {0, 0};
-const SDL_Rect wall_tile = {ICON_SIZE*2, ICON_SIZE*2, ICON_SIZE, ICON_SIZE};
-const SDL_Rect fruit_tile = {ICON_SIZE*2, ICON_SIZE*3, ICON_SIZE, ICON_SIZE};
-const SDL_Rect snake_tile = {ICON_SIZE, ICON_SIZE*2, ICON_SIZE, ICON_SIZE};
-const SDL_Rect head_tile = {ICON_SIZE, ICON_SIZE*3, ICON_SIZE, ICON_SIZE};
 const int snake_len = BOARD_SIZE * BOARD_SIZE;
 
 void scc(char code) {
@@ -72,43 +67,48 @@ void snake_eat_fruit() {
 }
 
 void prepare_wall(SDL_Renderer *renderer) {
-    SDL_Rect target_tile = {0, 0, 32, 32};
+    SDL_Rect rect_wall = {0, 0, TILE_SIZE, TILE_SIZE};
+    SDL_SetRenderDrawColor(renderer, 150, 10, 0, 255);
     for (int i = 0; i <= BOARD_SIZE; ++i) {
-        target_tile.x = i * ICON_SIZE;
+        rect_wall.x = i * TILE_SIZE;
         for (int j = 0; j <= BOARD_SIZE; ++j) {
-            target_tile.y = j * ICON_SIZE;
+            rect_wall.y = j * TILE_SIZE;
             if (i == 0 || j == 0 || i == BOARD_SIZE || j == BOARD_SIZE) {
-                SDL_RenderCopy(renderer, arts_texture, &wall_tile, &target_tile);
+                SDL_RenderFillRect(renderer, &rect_wall);
             }
         }
     }
 }
 
 void prepare_fruit(SDL_Renderer *renderer) {
-    SDL_Rect target_tile = {
-        fruit.x*ICON_SIZE,
-        fruit.y*ICON_SIZE,
-        ICON_SIZE,
-        ICON_SIZE
+    SDL_Rect rect_fruit = {
+        fruit.x*TILE_SIZE,
+        fruit.y*TILE_SIZE,
+        TILE_SIZE,
+        TILE_SIZE
     };
-    SDL_RenderCopy(renderer, arts_texture, &fruit_tile, &target_tile);
+
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderFillRect(renderer, &rect_fruit);
 }
 
 void prepare_snake(SDL_Renderer *renderer) {
-    SDL_Rect rect;
-    rect.w = ICON_SIZE;
-    rect.h = ICON_SIZE;
-    int i = snake.len-1;
-    for (;i >= 0; i--) {
+    SDL_Rect rect_body = {0, 0, TILE_SIZE, TILE_SIZE};
+    SDL_SetRenderDrawColor(renderer, 100, 255, 50, 255);
+    for (int i = snake.len-1; i >= 0; i--) {
         if (snake.body[i].x == 0)
             break;
 
-        rect.x = snake.body[i].x * ICON_SIZE;
-        rect.y = snake.body[i].y * ICON_SIZE;
-        if (i == 0) 
-            SDL_RenderCopy(renderer, arts_texture, &head_tile, &rect);
-        else
-            SDL_RenderCopy(renderer, arts_texture, &snake_tile, &rect);
+        rect_body.x = snake.body[i].x * TILE_SIZE;
+        rect_body.y = snake.body[i].y * TILE_SIZE;
+        if (i == 0) {
+            SDL_SetRenderDrawColor(renderer, 50, 150, 0, 255);
+            SDL_RenderFillRect(renderer, &rect_body);
+        }
+        else {
+            SDL_SetRenderDrawColor(renderer, 147, 200, 0, 255);
+            SDL_RenderFillRect(renderer, &rect_body);
+        }
     }
 }
 
@@ -195,9 +195,6 @@ int main(int argc, char** argv) {
                 SDL_WINDOW_RESIZABLE));
     SDL_Renderer* renderer = scp(SDL_CreateRenderer(window, -1,
                 SDL_RENDERER_ACCELERATED));
-    arts_texture = scp(SDL_CreateTextureFromSurface(
-                renderer,
-                IMG_Load("./fantasy-tileset.png"))); 
     SDL_Event event;
     float speed = 1.3;
     Uint32 timeout = SDL_GetTicks() + speed * 100;
