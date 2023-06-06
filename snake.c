@@ -1,4 +1,4 @@
-#include "handmade.h"
+#include "snake.h"
 
 global_variable char running = 1;
 global_variable SDL_Texture *arts_texture = NULL;

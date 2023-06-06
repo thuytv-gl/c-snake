@@ -1,13 +1,12 @@
 #!/bin/sh
 set +x
 build_dir="./"
-main="./handmade.c"
-p_name="hmd"
+main="./snake.c"
+p_name="snake"
 exec_file=$build_dir/$p_name
 
 # make build dir if not exists
 [ ! -d $build_dir ] && mkdir $build_dir
-
 
 if [ "$1" = "--release" ] && [ -e "$exec_file" ] ; then
     pushd $build_dir > /dev/null
