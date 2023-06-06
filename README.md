@@ -1,12 +1,11 @@
-# Notebook and codes by following [handmadehero.org](http://handmadehero.org)
-## Objectives
-- To learn C language
-- To create graphical game
 
-----
-```bash
-MY SYSTEM
---------------
+```text
+Objectives
+To learn C language
+To create graphical game
+----------------------------
+        MY SYSTEM
+----------------------------
 OS              : Manjaro Linux
 Language        : C
 Compiler        : g++
