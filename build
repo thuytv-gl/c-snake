@@ -1,24 +1,32 @@
 #!/bin/sh
 set +x
-build_dir="./"
-main="./snake.c"
-p_name="snake"
-exec_file=$build_dir/$p_name
+root=$(pwd)
+outdir="$root/dist"
+main="$root/snake.c"
+objname="snake"
+exec_file=$outdir/$objname
 
 # make build dir if not exists
-[ ! -d $build_dir ] && mkdir $build_dir
+[ ! -d $outdir ] && mkdir -p $outdir
 
 if [ "$1" = "--release" ] && [ -e "$exec_file" ] ; then
-    pushd $build_dir > /dev/null
-    [ -e "./$p_name" ] && mv "./$p_name" "./$p_name~"
-    g++ -O3 -DNGEBUG -Wall -O2 -o $p_name $main -I/usr/include/SDL2 -L/usr/lib -lSDL2 -lSDL2_image
+    pushd $outdir> /dev/null
+    [ -e "./$objname" ] && mv "./$objname" "./$objname~"
+    g++ -O3 -DNGEBUG -Wall -O2 -o $objname $main -I/usr/include/SDL2 -L/usr/lib -lSDL2 -lSDL2_image
     popd > /dev/null
     exit
 fi
 
-pushd $build_dir > /dev/null
-[ -e "./$p_name" ] && mv "./$p_name" "./$p_name~"
-g++ -g -Wall -o $p_name $main -I/usr/include/SDL2 -L/usr/lib -lSDL2 -lSDL2_image
+pushd $outdir> /dev/null
+[ -e "./$objname" ] && mv "./$objname" "./$objname~"
+cp $root/SDL2/bin/* $outdir
+g++ $main -g -Wall \
+  -I$root/SDL2/include/SDL2 \
+  -L$root/SDL2/lib \
+  -L$root/SDL2/bin/SDL2 \
+  -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf \
+  -w -Wl,-subsystem,windows \
+  -o $objname
 popd > /dev/null
 
 if [ "$1" = "--run" ] && [ -e "$exec_file" ] ; then
