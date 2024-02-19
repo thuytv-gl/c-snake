@@ -5,22 +5,26 @@ outdir="$root/dist"
 main="$root/snake.c"
 objname="snake"
 exec_file=$outdir/$objname
+release_opts="-O3 -DNGEBUG -Wall"
+opts="-g -Wall"
+
+if [ "$1" = "--release" ] && [ -e "$exec_file" ] ; then
+  opts=$release_opts
+  outdir="$outdir/release"
+fi
 
 # make build dir if not exists
 [ ! -d $outdir ] && mkdir -p $outdir
 
-if [ "$1" = "--release" ] && [ -e "$exec_file" ] ; then
-    pushd $outdir> /dev/null
-    [ -e "./$objname" ] && mv "./$objname" "./$objname~"
-    g++ -O3 -DNGEBUG -Wall -O2 -o $objname $main -I/usr/include/SDL2 -L/usr/lib -lSDL2 -lSDL2_image
-    popd > /dev/null
-    exit
-fi
+
+# copy assets
+cp $root/SDL2/bin/*.dll $outdir
+cp -r $root/assets $outdir
 
 pushd $outdir> /dev/null
 [ -e "./$objname" ] && mv "./$objname" "./$objname~"
-cp $root/SDL2/bin/* $outdir
-g++ $main -g -Wall \
+# build binary
+g++ $main $opts \
   -I$root/SDL2/include/SDL2 \
   -L$root/SDL2/lib \
   -L$root/SDL2/bin/SDL2 \

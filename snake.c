@@ -244,7 +244,7 @@ void window_event_handler(SDL_Event *event) {
 void init_sdl() {
     scc(SDL_Init(SDL_INIT_VIDEO));
     scc(TTF_Init());
-    font = TTF_OpenFont("font.ttf", 24);
+    font = TTF_OpenFont("assets/font.ttf", 24);
     window = SDL_CreateWindow(WINDOW_TITLE,
                 SDL_WINDOWPOS_CENTERED,
                 SDL_WINDOWPOS_CENTERED,
